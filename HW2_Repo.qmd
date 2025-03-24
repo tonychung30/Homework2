@@ -1,25 +1,61 @@
 ---
 title: "HW2_Repo"
-format: html
-editor: visual
+author: "Tony Chung"
+date: "`r Sys.Date()`"
+output: html_document
 ---
 
-## Quarto
-
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Homework 2
 
 ```{r}
-1 + 1
+library(haven)
+library(ggplot2)
+library(rstatix)
+library(tidyverse)
+library(skimr)
+library(descr)
+library(labelled)
+library(alr4)
+library(smss)
+library(ggeffects)
+library(ggplot2)
+library(stargazer)
+library(lmtest)
+library(arm)
+library(sf)
+library(igraph)
 ```
-
-You can add options to executable code like this
 
 ```{r}
-#| echo: false
-2 * 2
+peru <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSHI_TY6rh9zEctvxnk83Vg88m1uXAEPA9DYT__TYOt5eS2mFovlraOXkaUcV8YZhbU30u34NfaMpY1/pub?output=csv")
+seattle <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRcnvcCrg58H3YAjZpEcGIRa48JrOySKnh4k6q9_-ENWTGatWvS3RayQs6CNR36rJfvi8ld0PPI6Jko/pub?output=csv")
+fifa <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTjk__2p0MTF5Oh_qmJ9PQpk-QN71HXKzxIYBcvKe09YiGYDD9tL1FlZ7BIiAL2rx_4wdF8mOWziGl9/pub?output=csv")
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+1.
+graph <- graph_from_data_frame(peru, directed = FALSE)
+
+is_connected <- is_connected(graph)
+
+if (!is_connected) {
+  largest_component_nodes <- which(V(graph) %in% components(graph)$membership[components(graph)$csize > 1])
+  graph <- induced_subgraph(graph, largest_component_nodes)
+}
+
+cat("Is the graph connected?:", is_connected, "\n")
+
+# Graph is not connected
+
+2.
+diameter <- get_diameter(graph, directed = FALSE)
+cat("Nodes in the diameter:", V(graph)[diameter]$name, "\n")
+
+# Nodes that represent the verticies in diameter
+
+3. 
+
+
+
+```
