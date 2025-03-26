@@ -34,28 +34,148 @@ fifa <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTjk__2p0MTF5O
 ```
 
 ```{r}
-1.
-graph <- graph_from_data_frame(peru, directed = FALSE)
+# Question 1
 
-is_connected <- is_connected(graph)
+graphP <- graph_from_data_frame(peru, directed = FALSE)
+is_connected <- is_connected(graphP)
 
 if (!is_connected) {
-  largest_component_nodes <- which(V(graph) %in% components(graph)$membership[components(graph)$csize > 1])
-  graph <- induced_subgraph(graph, largest_component_nodes)
+  components_info <- components(graphP)
+  largest_component_nodes <- which(components_info$membership == which.max(components_info$csize))  
+  graphP <- induced_subgraph(graphP, largest_component_nodes)
 }
 
+# 1
 cat("Is the graph connected?:", is_connected, "\n")
 
-# Graph is not connected
+# No, it's not connected
 
-2.
-diameter <- get_diameter(graph, directed = FALSE)
-cat("Nodes in the diameter:", V(graph)[diameter]$name, "\n")
+# 2
+diam <- get_diameter(graphP, directed = FALSE)
+cat("Nodes in the diameter:", V(graphP)[diam]$name, "\n")
 
-# Nodes that represent the verticies in diameter
+# Nodes: Romero 0 Wiese
 
-3. 
+# 3
+bv <- betweenness(graphP, directed = FALSE, normalized = TRUE)
+tb <- quantile(betweenness_values, 0.9, na.rm = TRUE)  
+high_bn <- which(betweenness_values >= top_betweenness)
 
+plot(graphP, 
+     vertex.size = 5, 
+     vertex.label = NA, 
+     vertex.color = ifelse(V(graphP) %in% high_betweenness_nodes, "red"),
+     main = "Nodes with Highest Betweenness (Red)")
 
+# 4
+dv <- degree(graphP, normalized = TRUE) 
+bv <- betweenness(graphP, normalized = TRUE)  
 
+closeness1 <- closeness(graphP, normalized = TRUE)
+closeness[is.infinite(closeness_values)] <- NA
+
+centrality <- data.frame(
+  Node = V(graphP)$name,
+  Degree = dv,
+  Closeness = closeness1,
+  Betweenness = bv
+)
+
+centrality <- na.omit(centrality_df)
+
+ggplot(centrality, aes(x = Degree, y = Closeness, size = Betweenness, color = Betweenness)) +
+  geom_point(alpha = 0.5) +
+  scale_color_gradient(low = "red", high = "green") +
+  labs(title = "Centrality ", x = "Degree", y = "Closeness") +
+  theme_minimal()
+```
+
+```{r}
+# Question 2
+
+graph1 <- graph_from_data_frame(seattle, directed = TRUE)
+
+# 1
+is_connected <- is_connected(graph1)
+cat("Is the graph connected?:", is_connected, "\n")
+
+# Yes, the graph is connected
+
+if (!is_connected) {
+  components_info <- components(graph1)
+  largest_component_nodes <- which(components_info$membership == which.max(components_info$csize))
+  graph1 <- induced_subgraph(graph1, largest_component_nodes)
+}
+
+# 2
+vertex_connectivity_value <- vertex_connectivity(graph1)
+cat("Minimum nodes to delete to disconnect the network:", vertex_connectivity_value, "\n")
+
+# 3
+hub_scores <- hub.score(graph1)$vector
+auth_scores <- authority.score(graph1)$vector
+pagerank_scores <- page_rank(graph1)$vector
+
+link_analysis_df <- data.frame(
+  Node = V(graph1)$name,
+  Hubs = hub_scores,
+  Authorities = auth_scores,
+  PageRank = pagerank_scores
+)
+
+link_analysis_df <- na.omit(link_analysis_df)
+
+# Nodes deleted to split network: 0
+
+# 4
+ggplot(link_analysis_df, aes(x = Hubs, y = Authorities, size = PageRank, color = PageRank)) +
+  geom_point(alpha = 0.5) +
+  scale_color_gradient(low = "red", high = "green") +
+  labs(title = "Link Analysis", x = "Hubs", y = "Authorities") +
+  theme_dark()
+```
+
+```{r}
+# Question 3
+
+graph2 <- graph_from_data_frame(fifa, directed = FALSE)
+
+is_connected <- is_connected(graph2)
+cat("Is the graph connected?:", is_connected, "\n")
+
+if (!is_connected) {
+  components_info <- components(graph2)
+  largest_component_nodes <- which(components_info$membership == which.max(components_info$csize))
+  graph2 <- induced_subgraph(graph, largest_component_nodes)
+}
+
+# Graph is connected
+
+# 2
+network_density <- edge_density(graph2)
+cat("Network Density:", network_density, "\n")
+
+# Density is 1.910345
+
+# 3
+dv1 <- degree(graph2, normalized = TRUE) 
+bv1 <- betweenness(graph2, normalized = TRUE) 
+cv1 <- closeness(graph2, normalized = TRUE)
+
+closeness_values[is.infinite(closeness_values)] <- NA 
+
+centrality1 <- data.frame(
+  Country = V(graph2)$name,
+  Degree = dv1,
+  Closeness = cv1,
+  Betweenness = bv1
+)
+
+centrality1 <- na.omit(centrality1)
+
+ggplot(centrality1, aes(x = Degree, y = Closeness, size = Betweenness, color = Betweenness)) +
+  geom_point(alpha = 0.5) +
+  scale_color_gradient(low = "red", high = "green") +
+  labs(title = "Centrality", x = "Degree", y = "Closeness") +
+  theme_dark()
 ```
